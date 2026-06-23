@@ -5,7 +5,6 @@ import '../datasources/auth_remote_datasource.dart';
 
 class AuthRepositoryImpl implements AuthRepository {
   final AuthRemoteDatasource datasource;
-
   const AuthRepositoryImpl(this.datasource);
 
   @override
@@ -33,7 +32,10 @@ class AuthRepositoryImpl implements AuthRepository {
     required String motDePasse,
   }) async {
     try {
-      return await datasource.connecter(email: email, motDePasse: motDePasse);
+      return await datasource.connecter(
+        email: email,
+        motDePasse: motDePasse,
+      );
     } on AppException {
       rethrow;
     } catch (e) {

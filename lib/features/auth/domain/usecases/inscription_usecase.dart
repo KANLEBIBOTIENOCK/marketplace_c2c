@@ -3,7 +3,6 @@ import '../repositories/auth_repository.dart';
 
 class InscriptionUsecase {
   final AuthRepository repository;
-
   const InscriptionUsecase(this.repository);
 
   Future<Utilisateur> call({
@@ -11,6 +10,10 @@ class InscriptionUsecase {
     required String motDePasse,
     required String nom,
   }) {
-    return repository.inscrire(email: email, motDePasse: motDePasse, nom: nom);
+    return repository.inscrire(
+      email: email,
+      motDePasse: motDePasse,
+      nom: nom,
+    );
   }
 }

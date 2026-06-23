@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-
 import '../providers/auth_provider.dart';
 import 'connexion_page.dart';
 import 'profil_page.dart';
@@ -29,9 +28,7 @@ class _InscriptionPageState extends ConsumerState<InscriptionPage> {
 
   Future<void> _submit() async {
     if (!_formKey.currentState!.validate()) return;
-    await ref
-        .read(authProvider.notifier)
-        .inscrire(
+    await ref.read(authProvider.notifier).inscrire(
           email: _emailController.text.trim(),
           motDePasse: _mdpController.text.trim(),
           nom: _nomController.text.trim(),
@@ -99,13 +96,13 @@ class _InscriptionPageState extends ConsumerState<InscriptionPage> {
                   border: const OutlineInputBorder(),
                   suffixIcon: IconButton(
                     icon: Icon(
-                      _obscure ? Icons.visibility : Icons.visibility_off,
-                    ),
+                        _obscure ? Icons.visibility : Icons.visibility_off),
                     onPressed: () => setState(() => _obscure = !_obscure),
                   ),
                 ),
-                validator: (v) =>
-                    (v == null || v.length < 6) ? 'Minimum 6 caractères' : null,
+                validator: (v) => (v == null || v.length < 6)
+                    ? 'Minimum 6 caractères'
+                    : null,
               ),
               const SizedBox(height: 24),
               authState.isLoading

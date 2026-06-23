@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-
 import '../providers/auth_provider.dart';
 import 'inscription_page.dart';
 import 'profil_page.dart';
@@ -27,9 +26,7 @@ class _ConnexionPageState extends ConsumerState<ConnexionPage> {
 
   Future<void> _submit() async {
     if (!_formKey.currentState!.validate()) return;
-    await ref
-        .read(authProvider.notifier)
-        .connecter(
+    await ref.read(authProvider.notifier).connecter(
           email: _emailController.text.trim(),
           motDePasse: _mdpController.text.trim(),
         );
@@ -85,8 +82,7 @@ class _ConnexionPageState extends ConsumerState<ConnexionPage> {
                   border: const OutlineInputBorder(),
                   suffixIcon: IconButton(
                     icon: Icon(
-                      _obscure ? Icons.visibility : Icons.visibility_off,
-                    ),
+                        _obscure ? Icons.visibility : Icons.visibility_off),
                     onPressed: () => setState(() => _obscure = !_obscure),
                   ),
                 ),
@@ -109,7 +105,7 @@ class _ConnexionPageState extends ConsumerState<ConnexionPage> {
                   context,
                   MaterialPageRoute(builder: (_) => const InscriptionPage()),
                 ),
-                child: const Text('Pas encore de compte ? S\'inscrire'),
+                child: const Text("Pas encore de compte ? S'inscrire"),
               ),
             ],
           ),

@@ -1,12 +1,10 @@
-import 'package:supabase_flutter/supabase_flutter.dart';
-
+import 'package:supabase_flutter/supabase_flutter.dart' hide AuthException;
 import '../../../../core/constants/supabase_constants.dart';
-import '../../../../core/errors/app_exception.dart' as app_error;
+import '../../../../core/errors/app_exception.dart';
 import '../models/utilisateur_model.dart';
 
 class AuthRemoteDatasource {
   final SupabaseClient _client;
-
   AuthRemoteDatasource(this._client);
 
   Future<UtilisateurModel> inscrire({
@@ -21,24 +19,19 @@ class AuthRemoteDatasource {
         data: {'nom': nom},
       );
       if (response.user == null) {
-        throw const app_error.AuthException('Inscription échouée.');
+        throw const AuthException('Inscription échouée.');
       }
-      await _client
-          .from(SupabaseConstants.utilisateursTable)
-          .update({'nom': nom})
-          .eq('id', response.user!.id);
-
+      await Future.delayed(const Duration(milliseconds: 500));
       final data = await _client
           .from(SupabaseConstants.utilisateursTable)
           .select()
           .eq('id', response.user!.id)
           .single();
-
       return UtilisateurModel.fromJson(data);
-    } on app_error.AuthException {
+    } on AuthException {
       rethrow;
     } catch (e) {
-      throw app_error.AuthException(e.toString());
+      throw AuthException(e.toString());
     }
   }
 
@@ -52,19 +45,18 @@ class AuthRemoteDatasource {
         password: motDePasse,
       );
       if (response.user == null) {
-        throw const app_error.AuthException('Connexion échouée.');
+        throw const AuthException('Connexion échouée.');
       }
       final data = await _client
           .from(SupabaseConstants.utilisateursTable)
           .select()
           .eq('id', response.user!.id)
           .single();
-
       return UtilisateurModel.fromJson(data);
-    } on app_error.AuthException {
+    } on AuthException {
       rethrow;
     } catch (e) {
-      throw app_error.AuthException(e.toString());
+      throw AuthException(e.toString());
     }
   }
 
@@ -111,10 +103,9 @@ class AuthRemoteDatasource {
           .select()
           .eq('id', id)
           .single();
-
       return UtilisateurModel.fromJson(data);
     } catch (e) {
-      throw app_error.ServerException(e.toString());
+      throw ServerException(e.toString());
     }
   }
 }

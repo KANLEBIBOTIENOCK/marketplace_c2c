@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-
 import '../providers/auth_provider.dart';
 import 'connexion_page.dart';
 
@@ -54,13 +53,11 @@ class ProfilPage extends ConsumerWidget {
                 _InfoTile(label: 'Email', value: user.email ?? '—'),
                 _InfoTile(label: 'Téléphone', value: user.telephone ?? '—'),
                 _InfoTile(
-                  label: 'Localisation',
-                  value: user.localisation ?? '—',
-                ),
+                    label: 'Localisation', value: user.localisation ?? '—'),
                 _InfoTile(
-                  label: 'Note',
-                  value: '${user.noteMoyenne} / 5 (${user.nombreAvis} avis)',
-                ),
+                    label: 'Note',
+                    value:
+                        '${user.noteMoyenne} / 5 (${user.nombreAvis} avis)'),
               ],
             ),
           );
@@ -73,7 +70,6 @@ class ProfilPage extends ConsumerWidget {
 class _InfoTile extends StatelessWidget {
   final String label;
   final String value;
-
   const _InfoTile({required this.label, required this.value});
 
   @override
@@ -84,13 +80,9 @@ class _InfoTile extends StatelessWidget {
         children: [
           SizedBox(
             width: 120,
-            child: Text(
-              label,
-              style: const TextStyle(
-                fontWeight: FontWeight.bold,
-                color: Colors.grey,
-              ),
-            ),
+            child: Text(label,
+                style: const TextStyle(
+                    fontWeight: FontWeight.bold, color: Colors.grey)),
           ),
           Expanded(child: Text(value)),
         ],
