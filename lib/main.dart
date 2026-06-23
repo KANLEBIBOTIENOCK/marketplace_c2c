@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'features/annonces/presentation/pages/catalogue_page.dart';
 import 'features/auth/presentation/pages/connexion_page.dart';
-import 'features/auth/presentation/pages/profil_page.dart';
 import 'features/auth/presentation/providers/auth_provider.dart';
 
 Future<void> main() async {
@@ -35,7 +35,7 @@ class MarketplaceApp extends ConsumerWidget {
         ),
         error: (_, __) => const ConnexionPage(),
         data: (user) =>
-            user != null ? const ProfilPage() : const ConnexionPage(),
+            user != null ? const CataloguePage() : const ConnexionPage(),
       ),
     );
   }
