@@ -6,16 +6,53 @@
 // tree, read text, and verify that the values of widget properties are correct.
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 import 'package:marketplace_c2c/main.dart';
 
 void main() {
-  testWidgets('Marketplace app renders its initial screen', (
+  TestWidgetsFlutterBinding.ensureInitialized();
+
+  const MethodChannel sharedPreferencesChannel = MethodChannel(
+    'plugins.flutter.io/shared_preferences',
+  );
+
+  setUpAll(() async {
+    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+        .setMockMethodCallHandler(sharedPreferencesChannel, (
+          MethodCall call,
+        ) async {
+          switch (call.method) {
+            case 'getAll':
+              return <String, dynamic>{};
+            case 'setBool':
+            case 'setInt':
+            case 'setDouble':
+            case 'setString':
+            case 'setStringList':
+            case 'remove':
+            case 'clear':
+              return true;
+            default:
+              return null;
+          }
+        });
+
+    await Supabase.initialize(
+      url: 'https://example.supabase.co',
+      anonKey: 'test-anon-key',
+    );
+  });
+
+  testWidgets('Marketplace app renders the auth entry screen', (
     WidgetTester tester,
   ) async {
-    await tester.pumpWidget(const MarketplaceApp());
+    await tester.pumpWidget(const ProviderScope(child: MarketplaceApp()));
+    await tester.pumpAndSettle();
 
-    expect(find.text('Marketplace C2C — Init OK'), findsOneWidget);
+    expect(find.text('Connexion'), findsOneWidget);
   });
 }
