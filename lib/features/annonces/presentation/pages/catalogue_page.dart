@@ -5,6 +5,7 @@ import '../providers/annonce_provider.dart';
 import '../widgets/annonce_card.dart';
 import 'creation_annonce_page.dart';
 import 'detail_annonce_page.dart';
+import 'recherche_page.dart';
 
 class CataloguePage extends ConsumerWidget {
   const CataloguePage({super.key});
@@ -17,6 +18,13 @@ class CataloguePage extends ConsumerWidget {
       appBar: AppBar(
         title: const Text('Marketplace'),
         actions: [
+          IconButton(
+            icon: const Icon(Icons.search),
+            onPressed: () => Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => const RecherchePage()),
+            ),
+          ),
           IconButton(
             icon: const Icon(Icons.person),
             onPressed: () => Navigator.push(
@@ -37,7 +45,7 @@ class CataloguePage extends ConsumerWidget {
               Text(e.toString(), textAlign: TextAlign.center),
               const SizedBox(height: 12),
               ElevatedButton(
-                onPressed: () => ref.refresh(annoncesProvider),
+                onPressed: () => ref.invalidate(annoncesProvider),
                 child: const Text('Réessayer'),
               ),
             ],
@@ -70,7 +78,7 @@ class CataloguePage extends ConsumerWidget {
             );
           }
           return RefreshIndicator(
-            onRefresh: () async => ref.refresh(annoncesProvider),
+            onRefresh: () async => ref.invalidate(annoncesProvider),
             child: GridView.builder(
               padding: const EdgeInsets.all(12),
               gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
@@ -87,7 +95,8 @@ class CataloguePage extends ConsumerWidget {
                   onTap: () => Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (_) => DetailAnnoncePage(annonceId: annonce.id),
+                      builder: (_) =>
+                          DetailAnnoncePage(annonceId: annonce.id),
                     ),
                   ),
                 );
@@ -102,7 +111,7 @@ class CataloguePage extends ConsumerWidget {
             context,
             MaterialPageRoute(builder: (_) => const CreationAnnoncePage()),
           );
-          ref.refresh(annoncesProvider);
+          ref.invalidate(annoncesProvider);
         },
         icon: const Icon(Icons.add),
         label: const Text('Publier'),

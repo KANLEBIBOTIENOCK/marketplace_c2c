@@ -44,13 +44,13 @@ class DetailAnnoncePage extends ConsumerWidget {
                       await ref
                           .read(marquerVendueUsecaseProvider)
                           .call(annonce.id);
-                      ref.refresh(annoncesProvider);
+                      ref.invalidate(annoncesProvider);
                       if (context.mounted) Navigator.pop(context);
                     } else if (value == 'supprimer') {
                       await ref
                           .read(supprimerAnnonceUsecaseProvider)
                           .call(annonce.id);
-                      ref.refresh(annoncesProvider);
+                      ref.invalidate(annoncesProvider);
                       if (context.mounted) Navigator.pop(context);
                     }
                   },
