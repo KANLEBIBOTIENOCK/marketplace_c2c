@@ -5,7 +5,11 @@ class AnnonceCard extends StatelessWidget {
   final Annonce annonce;
   final VoidCallback onTap;
 
-  const AnnonceCard({super.key, required this.annonce, required this.onTap});
+  const AnnonceCard({
+    super.key,
+    required this.annonce,
+    required this.onTap,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -26,7 +30,7 @@ class AnnonceCard extends StatelessWidget {
                   ? Image.network(
                       annonce.photos.first,
                       fit: BoxFit.cover,
-                      errorBuilder: (_, _, _) => _placeholder(),
+                      errorBuilder: (_, __, ___) => _placeholder(),
                     )
                   : _placeholder(),
             ),
@@ -41,9 +45,7 @@ class AnnonceCard extends StatelessWidget {
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                     style: const TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 13,
-                    ),
+                        fontWeight: FontWeight.bold, fontSize: 13),
                   ),
                   const SizedBox(height: 4),
                   Text(
@@ -60,19 +62,14 @@ class AnnonceCard extends StatelessWidget {
                     const SizedBox(height: 4),
                     Row(
                       children: [
-                        const Icon(
-                          Icons.location_on,
-                          size: 11,
-                          color: Colors.grey,
-                        ),
+                        const Icon(Icons.location_on,
+                            size: 11, color: Colors.grey),
                         const SizedBox(width: 2),
                         Expanded(
                           child: Text(
                             annonce.localisation!,
                             style: const TextStyle(
-                              fontSize: 11,
-                              color: Colors.grey,
-                            ),
+                                fontSize: 11, color: Colors.grey),
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                           ),

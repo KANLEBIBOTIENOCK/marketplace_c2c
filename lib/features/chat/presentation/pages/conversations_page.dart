@@ -23,15 +23,11 @@ class ConversationsPage extends ConsumerWidget {
                 children: [
                   Icon(Icons.chat_bubble_outline, size: 64, color: Colors.grey),
                   SizedBox(height: 16),
-                  Text(
-                    'Aucune conversation pour le moment',
-                    style: TextStyle(color: Colors.grey, fontSize: 16),
-                  ),
+                  Text('Aucune conversation pour le moment',
+                      style: TextStyle(color: Colors.grey, fontSize: 16)),
                   SizedBox(height: 8),
-                  Text(
-                    'Contactez un vendeur depuis une annonce',
-                    style: TextStyle(color: Colors.grey, fontSize: 13),
-                  ),
+                  Text('Contactez un vendeur depuis une annonce',
+                      style: TextStyle(color: Colors.grey, fontSize: 13)),
                 ],
               ),
             );
@@ -40,7 +36,7 @@ class ConversationsPage extends ConsumerWidget {
             onRefresh: () async => ref.invalidate(mesConversationsProvider),
             child: ListView.separated(
               itemCount: conversations.length,
-              separatorBuilder: (_, _) => const Divider(height: 1),
+              separatorBuilder: (_, __) => const Divider(height: 1),
               itemBuilder: (context, index) {
                 final conv = conversations[index];
                 // nonLus vient directement du modèle (colonnes Supabase)
@@ -51,9 +47,8 @@ class ConversationsPage extends ConsumerWidget {
                     clipBehavior: Clip.none,
                     children: [
                       CircleAvatar(
-                        backgroundColor: Theme.of(
-                          context,
-                        ).colorScheme.primaryContainer,
+                        backgroundColor:
+                            Theme.of(context).colorScheme.primaryContainer,
                         child: Text(
                           (conv.autreNom ?? '?')[0].toUpperCase(),
                           style: TextStyle(
@@ -75,10 +70,9 @@ class ConversationsPage extends ConsumerWidget {
                             child: Text(
                               nonLus > 9 ? '9+' : '$nonLus',
                               style: const TextStyle(
-                                color: Colors.white,
-                                fontSize: 10,
-                                fontWeight: FontWeight.bold,
-                              ),
+                                  color: Colors.white,
+                                  fontSize: 10,
+                                  fontWeight: FontWeight.bold),
                             ),
                           ),
                         ),
@@ -87,29 +81,26 @@ class ConversationsPage extends ConsumerWidget {
                   title: Text(
                     conv.autreNom ?? 'Utilisateur',
                     style: TextStyle(
-                      fontWeight: nonLus > 0
-                          ? FontWeight.bold
-                          : FontWeight.normal,
-                    ),
+                        fontWeight: nonLus > 0
+                            ? FontWeight.bold
+                            : FontWeight.normal),
                   ),
                   subtitle: Text(
                     conv.annonceTitre ?? 'Annonce',
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: TextStyle(
-                      color: nonLus > 0 ? Colors.black87 : Colors.grey,
-                      fontWeight: nonLus > 0
-                          ? FontWeight.w500
-                          : FontWeight.normal,
-                    ),
+                        color: nonLus > 0 ? Colors.black87 : Colors.grey,
+                        fontWeight: nonLus > 0
+                            ? FontWeight.w500
+                            : FontWeight.normal),
                   ),
                   trailing: const Icon(Icons.chevron_right),
                   onTap: () async {
                     await Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (_) => ChatPage(conversation: conv),
-                      ),
+                          builder: (_) => ChatPage(conversation: conv)),
                     );
                     ref.invalidate(mesConversationsProvider);
                   },

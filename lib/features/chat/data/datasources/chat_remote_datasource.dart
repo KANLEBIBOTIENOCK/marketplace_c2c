@@ -55,10 +55,8 @@ class ChatRemoteDatasource {
           .order('created_at', ascending: false);
 
       return (data as List)
-          .map(
-            (e) =>
-                ConversationModel.fromJson(e as Map<String, dynamic>, userId),
-          )
+          .map((e) =>
+              ConversationModel.fromJson(e as Map<String, dynamic>, userId))
           .toList();
     } catch (e) {
       throw ServerException(e.toString());
@@ -71,7 +69,9 @@ class ChatRemoteDatasource {
         .stream(primaryKey: ['id'])
         .eq('conversation_id', conversationId)
         .order('created_at', ascending: true)
-        .map((data) => data.map((e) => MessageModel.fromJson(e)).toList());
+        .map((data) => data
+            .map((e) => MessageModel.fromJson(e as Map<String, dynamic>))
+            .toList());
   }
 
   Future<MessageModel> envoyerMessage({

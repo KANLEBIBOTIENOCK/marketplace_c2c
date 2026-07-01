@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart' hide AuthException;
+import '../../../avis/presentation/pages/notation_page.dart';
+import '../../../avis/presentation/providers/avis_provider.dart';
 import '../../domain/entities/conversation.dart';
 import '../../domain/entities/message.dart';
 import '../providers/chat_provider.dart';
@@ -17,19 +19,15 @@ class _ChatPageState extends ConsumerState<ChatPage> {
   final _controller = TextEditingController();
   final _scrollController = ScrollController();
   late final String _currentUserId;
-
-  // Fix Bug 3 — messages locaux avec ID temporaire unique
   final List<_LocalMessage> _pending = [];
 
   @override
   void initState() {
     super.initState();
     _currentUserId = Supabase.instance.client.auth.currentUser!.id;
-    Future.microtask(
-      () => ref
-          .read(marquerLuUsecaseProvider)
-          .call(widget.conversation.id, _currentUserId),
-    );
+    Future.microtask(() => ref
+        .read(marquerLuUsecaseProvider)
+        .call(widget.conversation.id, _currentUserId));
   }
 
   @override
@@ -55,8 +53,6 @@ class _ChatPageState extends ConsumerState<ChatPage> {
     final texte = _controller.text.trim();
     if (texte.isEmpty) return;
     _controller.clear();
-
-    // ID temporaire unique basé sur timestamp
     final tempId = 'local_${DateTime.now().microsecondsSinceEpoch}';
     final local = _LocalMessage(
       tempId: tempId,
@@ -64,24 +60,15 @@ class _ChatPageState extends ConsumerState<ChatPage> {
       expediteurId: _currentUserId,
       createdAt: DateTime.now(),
     );
-
     setState(() => _pending.add(local));
     _scrollToBottom();
-
     try {
-      final confirme = await ref
-          .read(envoyerMessageUsecaseProvider)
-          .call(
+      await ref.read(envoyerMessageUsecaseProvider).call(
             conversationId: widget.conversation.id,
             expediteurId: _currentUserId,
             contenu: texte,
           );
-      // Retirer par tempId (pas par contenu) une fois confirmé
-      if (mounted) {
-        setState(() => _pending.removeWhere((m) => m.tempId == tempId));
-      }
-      // Le stream Supabase va automatiquement inclure le message confirmé
-      confirme;
+      if (mounted) setState(() => _pending.removeWhere((m) => m.tempId == tempId));
     } catch (e) {
       if (mounted) {
         setState(() => _pending.removeWhere((m) => m.tempId == tempId));
@@ -93,51 +80,80 @@ class _ChatPageState extends ConsumerState<ChatPage> {
   }
 
   List<Message> _fusionner(List<Message> stream) {
-    // IDs des messages déjà confirmés dans le stream
     final idsConfirmes = stream.map((m) => m.id).toSet();
-
-    // Messages locaux dont l'ID temp n'est pas encore dans le stream
     final locaux = _pending
-        .map(
-          (m) => Message(
-            id: m.tempId,
-            conversationId: widget.conversation.id,
-            expediteurId: m.expediteurId,
-            contenu: m.contenu,
-            createdAt: m.createdAt,
-          ),
-        )
+        .map((m) => Message(
+              id: m.tempId,
+              conversationId: widget.conversation.id,
+              expediteurId: m.expediteurId,
+              contenu: m.contenu,
+              createdAt: m.createdAt,
+            ))
         .where((m) => !idsConfirmes.contains(m.id))
         .toList();
-
     final tous = [...stream, ...locaux];
-    tous.sort(
-      (a, b) =>
-          (a.createdAt ?? DateTime(0)).compareTo(b.createdAt ?? DateTime(0)),
-    );
+    tous.sort((a, b) =>
+        (a.createdAt ?? DateTime(0)).compareTo(b.createdAt ?? DateTime(0)));
     return tous;
   }
+
+  String get _autreId => _currentUserId == widget.conversation.acheteurId
+      ? widget.conversation.vendeurId
+      : widget.conversation.acheteurId;
 
   @override
   Widget build(BuildContext context) {
     final messagesAsync = ref.watch(messagesProvider(widget.conversation.id));
+    final dejaNoteAsync = ref.watch(dejaNoteProvider((
+      conversationId: widget.conversation.id,
+      evaluateurId: _currentUserId,
+    )));
 
     return Scaffold(
       appBar: AppBar(
         title: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              widget.conversation.autreNom ?? 'Conversation',
-              style: const TextStyle(fontSize: 16),
-            ),
+            Text(widget.conversation.autreNom ?? 'Conversation',
+                style: const TextStyle(fontSize: 16)),
             if (widget.conversation.annonceTitre != null)
-              Text(
-                widget.conversation.annonceTitre!,
-                style: const TextStyle(fontSize: 12, color: Colors.grey),
-              ),
+              Text(widget.conversation.annonceTitre!,
+                  style: const TextStyle(fontSize: 12, color: Colors.grey)),
           ],
         ),
+        actions: [
+          // Bouton notation — visible seulement si pas encore noté
+          dejaNoteAsync.when(
+            data: (dejaNote) => dejaNote
+                ? const SizedBox.shrink()
+                : IconButton(
+                    icon: const Icon(Icons.star_outline),
+                    tooltip: 'Laisser un avis',
+                    onPressed: () async {
+                      final result = await Navigator.push<bool>(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => NotationPage(
+                            conversationId: widget.conversation.id,
+                            annonceId: widget.conversation.annonceId,
+                            evalueId: _autreId,
+                            evalueNom:
+                                widget.conversation.autreNom ?? 'Utilisateur',
+                          ),
+                        ),
+                      );
+                      if (result == true) {
+                        ref.invalidate(dejaNoteProvider((
+                          conversationId: widget.conversation.id,
+                          evaluateurId: _currentUserId,
+                        )));
+                      }
+                    },
+                  ),
+            loading: () => const SizedBox.shrink(),
+            error: (_, __) => const SizedBox.shrink(),
+          ),
+        ],
       ),
       body: Column(
         children: [
@@ -149,10 +165,8 @@ class _ChatPageState extends ConsumerState<ChatPage> {
                 final tous = _fusionner(messages);
                 if (tous.isEmpty) {
                   return const Center(
-                    child: Text(
-                      'Commencez la conversation !',
-                      style: TextStyle(color: Colors.grey),
-                    ),
+                    child: Text('Commencez la conversation !',
+                        style: TextStyle(color: Colors.grey)),
                   );
                 }
                 _scrollToBottom();
@@ -189,12 +203,9 @@ class _ChatPageState extends ConsumerState<ChatPage> {
                     decoration: InputDecoration(
                       hintText: 'Votre message...',
                       border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(24),
-                      ),
+                          borderRadius: BorderRadius.circular(24)),
                       contentPadding: const EdgeInsets.symmetric(
-                        horizontal: 16,
-                        vertical: 10,
-                      ),
+                          horizontal: 16, vertical: 10),
                     ),
                     onSubmitted: (_) => _envoyer(),
                   ),
@@ -216,7 +227,6 @@ class _ChatPageState extends ConsumerState<ChatPage> {
   }
 }
 
-// Classe interne message local
 class _LocalMessage {
   final String tempId;
   final String contenu;
@@ -235,7 +245,6 @@ class _MessageBubble extends StatelessWidget {
   final bool isMine;
   final DateTime? time;
   final bool isPending;
-
   const _MessageBubble({
     required this.message,
     required this.isMine,
@@ -250,14 +259,12 @@ class _MessageBubble extends StatelessWidget {
       child: Container(
         margin: const EdgeInsets.symmetric(vertical: 4),
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-        constraints: BoxConstraints(
-          maxWidth: MediaQuery.of(context).size.width * 0.72,
-        ),
+        constraints:
+            BoxConstraints(maxWidth: MediaQuery.of(context).size.width * 0.72),
         decoration: BoxDecoration(
           color: isMine
-              ? Theme.of(
-                  context,
-                ).colorScheme.primary.withValues(alpha: isPending ? 0.6 : 1.0)
+              ? Theme.of(context).colorScheme.primary.withValues(
+                  alpha: isPending ? 0.6 : 1.0)
               : Colors.grey.shade200,
           borderRadius: BorderRadius.only(
             topLeft: const Radius.circular(16),
@@ -269,13 +276,10 @@ class _MessageBubble extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.end,
           children: [
-            Text(
-              message,
-              style: TextStyle(
-                color: isMine ? Colors.white : Colors.black87,
-                fontSize: 14,
-              ),
-            ),
+            Text(message,
+                style: TextStyle(
+                    color: isMine ? Colors.white : Colors.black87,
+                    fontSize: 14)),
             const SizedBox(height: 4),
             Row(
               mainAxisSize: MainAxisSize.min,
@@ -284,9 +288,9 @@ class _MessageBubble extends StatelessWidget {
                   Text(
                     '${time!.hour.toString().padLeft(2, '0')}:${time!.minute.toString().padLeft(2, '0')}',
                     style: TextStyle(
-                      fontSize: 10,
-                      color: isMine ? Colors.white70 : Colors.grey.shade500,
-                    ),
+                        fontSize: 10,
+                        color:
+                            isMine ? Colors.white70 : Colors.grey.shade500),
                   ),
                 if (isPending && isMine) ...[
                   const SizedBox(width: 4),
@@ -294,9 +298,7 @@ class _MessageBubble extends StatelessWidget {
                     width: 10,
                     height: 10,
                     child: CircularProgressIndicator(
-                      strokeWidth: 1.5,
-                      color: Colors.white70,
-                    ),
+                        strokeWidth: 1.5, color: Colors.white70),
                   ),
                 ],
               ],

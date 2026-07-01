@@ -30,9 +30,10 @@ class MarketplaceApp extends ConsumerWidget {
         useMaterial3: true,
       ),
       home: authState.when(
-        loading: () =>
-            const Scaffold(body: Center(child: CircularProgressIndicator())),
-        error: (_, _) => const ConnexionPage(),
+        loading: () => const Scaffold(
+          body: Center(child: CircularProgressIndicator()),
+        ),
+        error: (_, __) => const ConnexionPage(),
         data: (user) =>
             user != null ? const CataloguePage() : const ConnexionPage(),
       ),

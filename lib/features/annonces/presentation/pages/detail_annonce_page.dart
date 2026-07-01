@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart' hide AuthException;
+import '../../../chat/domain/entities/conversation.dart';
 import '../../../chat/presentation/pages/chat_page.dart';
 import '../../../chat/presentation/providers/chat_provider.dart';
 import '../providers/annonce_provider.dart';
@@ -21,11 +22,11 @@ class DetailAnnoncePage extends ConsumerWidget {
           const Scaffold(body: Center(child: CircularProgressIndicator())),
       error: (e, _) => Scaffold(body: Center(child: Text(e.toString()))),
       data: (annonces) {
-        final annonce = annonces.where((a) => a.id == annonceId).firstOrNull;
+        final annonce =
+            annonces.where((a) => a.id == annonceId).firstOrNull;
         if (annonce == null) {
           return const Scaffold(
-            body: Center(child: Text('Annonce introuvable')),
-          );
+              body: Center(child: Text('Annonce introuvable')));
         }
 
         final categorieName = categoriesAsync.value
@@ -58,16 +59,12 @@ class DetailAnnoncePage extends ConsumerWidget {
                   },
                   itemBuilder: (_) => [
                     const PopupMenuItem(
-                      value: 'vendue',
-                      child: Text('Marquer comme vendue'),
-                    ),
+                        value: 'vendue',
+                        child: Text('Marquer comme vendue')),
                     const PopupMenuItem(
-                      value: 'supprimer',
-                      child: Text(
-                        'Supprimer',
-                        style: TextStyle(color: Colors.red),
-                      ),
-                    ),
+                        value: 'supprimer',
+                        child: Text('Supprimer',
+                            style: TextStyle(color: Colors.red))),
                   ],
                 ),
             ],
@@ -85,13 +82,10 @@ class DetailAnnoncePage extends ConsumerWidget {
                       itemBuilder: (_, i) => Image.network(
                         annonce.photos[i],
                         fit: BoxFit.cover,
-                        errorBuilder: (_, _, _) => Container(
+                        errorBuilder: (_, __, ___) => Container(
                           color: Colors.grey[200],
-                          child: const Icon(
-                            Icons.image,
-                            size: 64,
-                            color: Colors.grey,
-                          ),
+                          child: const Icon(Icons.image,
+                              size: 64, color: Colors.grey),
                         ),
                       ),
                     ),
@@ -101,8 +95,8 @@ class DetailAnnoncePage extends ConsumerWidget {
                     height: 200,
                     color: Colors.grey[200],
                     child: const Center(
-                      child: Icon(Icons.image, size: 64, color: Colors.grey),
-                    ),
+                        child:
+                            Icon(Icons.image, size: 64, color: Colors.grey)),
                   ),
 
                 Padding(
@@ -113,9 +107,7 @@ class DetailAnnoncePage extends ConsumerWidget {
                       if (annonce.statut != 'active')
                         Container(
                           padding: const EdgeInsets.symmetric(
-                            horizontal: 10,
-                            vertical: 4,
-                          ),
+                              horizontal: 10, vertical: 4),
                           decoration: BoxDecoration(
                             color: annonce.statut == 'vendue'
                                 ? Colors.green
@@ -125,19 +117,14 @@ class DetailAnnoncePage extends ConsumerWidget {
                           child: Text(
                             annonce.statut == 'vendue' ? 'Vendu' : 'Archivé',
                             style: const TextStyle(
-                              color: Colors.white,
-                              fontWeight: FontWeight.bold,
-                            ),
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold),
                           ),
                         ),
                       const SizedBox(height: 8),
-                      Text(
-                        annonce.titre,
-                        style: const TextStyle(
-                          fontSize: 22,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
+                      Text(annonce.titre,
+                          style: const TextStyle(
+                              fontSize: 22, fontWeight: FontWeight.bold)),
                       const SizedBox(height: 8),
                       Text(
                         annonce.prix != null
@@ -151,63 +138,42 @@ class DetailAnnoncePage extends ConsumerWidget {
                       ),
                       const SizedBox(height: 12),
                       if (categorieName != null)
-                        Row(
-                          children: [
-                            const Icon(
-                              Icons.category,
-                              size: 16,
-                              color: Colors.grey,
-                            ),
-                            const SizedBox(width: 4),
-                            Text(
-                              categorieName,
-                              style: const TextStyle(color: Colors.grey),
-                            ),
-                          ],
-                        ),
+                        Row(children: [
+                          const Icon(Icons.category,
+                              size: 16, color: Colors.grey),
+                          const SizedBox(width: 4),
+                          Text(categorieName,
+                              style: const TextStyle(color: Colors.grey)),
+                        ]),
                       if (annonce.localisation != null) ...[
                         const SizedBox(height: 4),
-                        Row(
-                          children: [
-                            const Icon(
-                              Icons.location_on,
-                              size: 16,
-                              color: Colors.grey,
-                            ),
-                            const SizedBox(width: 4),
-                            Text(
-                              annonce.localisation!,
-                              style: const TextStyle(color: Colors.grey),
-                            ),
-                          ],
-                        ),
+                        Row(children: [
+                          const Icon(Icons.location_on,
+                              size: 16, color: Colors.grey),
+                          const SizedBox(width: 4),
+                          Text(annonce.localisation!,
+                              style: const TextStyle(color: Colors.grey)),
+                        ]),
                       ],
                       const SizedBox(height: 16),
                       const Divider(),
                       if (annonce.description != null &&
                           annonce.description!.isNotEmpty) ...[
                         const SizedBox(height: 8),
-                        const Text(
-                          'Description',
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 16,
-                          ),
-                        ),
+                        const Text('Description',
+                            style: TextStyle(
+                                fontWeight: FontWeight.bold, fontSize: 16)),
                         const SizedBox(height: 8),
-                        Text(
-                          annonce.description!,
-                          style: const TextStyle(fontSize: 14, height: 1.5),
-                        ),
+                        Text(annonce.description!,
+                            style: const TextStyle(
+                                fontSize: 14, height: 1.5)),
                         const SizedBox(height: 16),
                       ],
                       if (annonce.createdAt != null)
                         Text(
                           'Publié le ${annonce.createdAt!.day}/${annonce.createdAt!.month}/${annonce.createdAt!.year}',
                           style: const TextStyle(
-                            color: Colors.grey,
-                            fontSize: 12,
-                          ),
+                              color: Colors.grey, fontSize: 12),
                         ),
                     ],
                   ),
@@ -242,9 +208,8 @@ class DetailAnnoncePage extends ConsumerWidget {
                         if (context.mounted) {
                           ScaffoldMessenger.of(context).showSnackBar(
                             SnackBar(
-                              content: Text(e.toString()),
-                              backgroundColor: Colors.red,
-                            ),
+                                content: Text(e.toString()),
+                                backgroundColor: Colors.red),
                           );
                         }
                       }
