@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:supabase_flutter/supabase_flutter.dart' hide AuthException;
+import '../../../chat/presentation/pages/chat_page.dart';
+import '../../../chat/presentation/providers/chat_provider.dart';
 import '../providers/annonce_provider.dart';
 import '../providers/categorie_provider.dart';
 
@@ -19,11 +21,11 @@ class DetailAnnoncePage extends ConsumerWidget {
           const Scaffold(body: Center(child: CircularProgressIndicator())),
       error: (e, _) => Scaffold(body: Center(child: Text(e.toString()))),
       data: (annonces) {
-        final annonce =
-            annonces.where((a) => a.id == annonceId).firstOrNull;
+        final annonce = annonces.where((a) => a.id == annonceId).firstOrNull;
         if (annonce == null) {
           return const Scaffold(
-              body: Center(child: Text('Annonce introuvable')));
+            body: Center(child: Text('Annonce introuvable')),
+          );
         }
 
         final categorieName = categoriesAsync.value
@@ -56,12 +58,16 @@ class DetailAnnoncePage extends ConsumerWidget {
                   },
                   itemBuilder: (_) => [
                     const PopupMenuItem(
-                        value: 'vendue',
-                        child: Text('Marquer comme vendue')),
+                      value: 'vendue',
+                      child: Text('Marquer comme vendue'),
+                    ),
                     const PopupMenuItem(
-                        value: 'supprimer',
-                        child:
-                            Text('Supprimer', style: TextStyle(color: Colors.red))),
+                      value: 'supprimer',
+                      child: Text(
+                        'Supprimer',
+                        style: TextStyle(color: Colors.red),
+                      ),
+                    ),
                   ],
                 ),
             ],
@@ -70,7 +76,7 @@ class DetailAnnoncePage extends ConsumerWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Carrousel photos
+                // Photos
                 if (annonce.photos.isNotEmpty)
                   SizedBox(
                     height: 260,
@@ -79,10 +85,13 @@ class DetailAnnoncePage extends ConsumerWidget {
                       itemBuilder: (_, i) => Image.network(
                         annonce.photos[i],
                         fit: BoxFit.cover,
-                        errorBuilder: (_, __, ___) => Container(
+                        errorBuilder: (_, _, _) => Container(
                           color: Colors.grey[200],
-                          child: const Icon(Icons.image,
-                              size: 64, color: Colors.grey),
+                          child: const Icon(
+                            Icons.image,
+                            size: 64,
+                            color: Colors.grey,
+                          ),
                         ),
                       ),
                     ),
@@ -91,8 +100,9 @@ class DetailAnnoncePage extends ConsumerWidget {
                   Container(
                     height: 200,
                     color: Colors.grey[200],
-                    child:
-                        const Center(child: Icon(Icons.image, size: 64, color: Colors.grey)),
+                    child: const Center(
+                      child: Icon(Icons.image, size: 64, color: Colors.grey),
+                    ),
                   ),
 
                 Padding(
@@ -100,11 +110,12 @@ class DetailAnnoncePage extends ConsumerWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      // Statut badge
                       if (annonce.statut != 'active')
                         Container(
                           padding: const EdgeInsets.symmetric(
-                              horizontal: 10, vertical: 4),
+                            horizontal: 10,
+                            vertical: 4,
+                          ),
                           decoration: BoxDecoration(
                             color: annonce.statut == 'vendue'
                                 ? Colors.green
@@ -114,21 +125,20 @@ class DetailAnnoncePage extends ConsumerWidget {
                           child: Text(
                             annonce.statut == 'vendue' ? 'Vendu' : 'Archivé',
                             style: const TextStyle(
-                                color: Colors.white,
-                                fontWeight: FontWeight.bold),
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                            ),
                           ),
                         ),
                       const SizedBox(height: 8),
-
-                      // Titre
                       Text(
                         annonce.titre,
                         style: const TextStyle(
-                            fontSize: 22, fontWeight: FontWeight.bold),
+                          fontSize: 22,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                       const SizedBox(height: 8),
-
-                      // Prix
                       Text(
                         annonce.prix != null
                             ? '${annonce.prix!.toStringAsFixed(0)} FCFA'
@@ -140,50 +150,64 @@ class DetailAnnoncePage extends ConsumerWidget {
                         ),
                       ),
                       const SizedBox(height: 12),
-
-                      // Catégorie
                       if (categorieName != null)
-                        Row(children: [
-                          const Icon(Icons.category,
-                              size: 16, color: Colors.grey),
-                          const SizedBox(width: 4),
-                          Text(categorieName,
-                              style: const TextStyle(color: Colors.grey)),
-                        ]),
-
-                      // Localisation
+                        Row(
+                          children: [
+                            const Icon(
+                              Icons.category,
+                              size: 16,
+                              color: Colors.grey,
+                            ),
+                            const SizedBox(width: 4),
+                            Text(
+                              categorieName,
+                              style: const TextStyle(color: Colors.grey),
+                            ),
+                          ],
+                        ),
                       if (annonce.localisation != null) ...[
                         const SizedBox(height: 4),
-                        Row(children: [
-                          const Icon(Icons.location_on,
-                              size: 16, color: Colors.grey),
-                          const SizedBox(width: 4),
-                          Text(annonce.localisation!,
-                              style: const TextStyle(color: Colors.grey)),
-                        ]),
+                        Row(
+                          children: [
+                            const Icon(
+                              Icons.location_on,
+                              size: 16,
+                              color: Colors.grey,
+                            ),
+                            const SizedBox(width: 4),
+                            Text(
+                              annonce.localisation!,
+                              style: const TextStyle(color: Colors.grey),
+                            ),
+                          ],
+                        ),
                       ],
                       const SizedBox(height: 16),
                       const Divider(),
-                      const SizedBox(height: 8),
-
-                      // Description
                       if (annonce.description != null &&
                           annonce.description!.isNotEmpty) ...[
-                        const Text('Description',
-                            style: TextStyle(
-                                fontWeight: FontWeight.bold, fontSize: 16)),
                         const SizedBox(height: 8),
-                        Text(annonce.description!,
-                            style: const TextStyle(fontSize: 14, height: 1.5)),
+                        const Text(
+                          'Description',
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16,
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          annonce.description!,
+                          style: const TextStyle(fontSize: 14, height: 1.5),
+                        ),
                         const SizedBox(height: 16),
                       ],
-
-                      // Date
                       if (annonce.createdAt != null)
                         Text(
                           'Publié le ${annonce.createdAt!.day}/${annonce.createdAt!.month}/${annonce.createdAt!.year}',
                           style: const TextStyle(
-                              color: Colors.grey, fontSize: 12),
+                            color: Colors.grey,
+                            fontSize: 12,
+                          ),
                         ),
                     ],
                   ),
@@ -191,16 +215,39 @@ class DetailAnnoncePage extends ConsumerWidget {
               ],
             ),
           ),
-          // Bouton contacter — SP6 le branchera sur le chat
+          // Bouton contacter le vendeur — branché sur le chat SP6
           bottomNavigationBar: !isOwner
               ? Padding(
                   padding: const EdgeInsets.all(16),
                   child: ElevatedButton.icon(
-                    onPressed: () {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                            content: Text('Chat disponible au SP6 !')),
-                      );
+                    onPressed: () async {
+                      if (currentUserId == null) return;
+                      try {
+                        final conv = await ref
+                            .read(ouvrirConversationUsecaseProvider)
+                            .call(
+                              annonceId: annonce.id,
+                              acheteurId: currentUserId,
+                              vendeurId: annonce.utilisateurId,
+                            );
+                        if (context.mounted) {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => ChatPage(conversation: conv),
+                            ),
+                          );
+                        }
+                      } catch (e) {
+                        if (context.mounted) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text(e.toString()),
+                              backgroundColor: Colors.red,
+                            ),
+                          );
+                        }
+                      }
                     },
                     icon: const Icon(Icons.chat),
                     label: const Text('Contacter le vendeur'),

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../auth/presentation/pages/profil_page.dart';
+import '../../../chat/presentation/pages/conversations_page.dart';
 import '../providers/annonce_provider.dart';
 import '../widgets/annonce_card.dart';
 import 'creation_annonce_page.dart';
@@ -23,6 +24,13 @@ class CataloguePage extends ConsumerWidget {
             onPressed: () => Navigator.push(
               context,
               MaterialPageRoute(builder: (_) => const RecherchePage()),
+            ),
+          ),
+          IconButton(
+            icon: const Icon(Icons.chat_bubble_outline),
+            onPressed: () => Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => const ConversationsPage()),
             ),
           ),
           IconButton(
@@ -85,7 +93,7 @@ class CataloguePage extends ConsumerWidget {
                 crossAxisCount: 2,
                 crossAxisSpacing: 12,
                 mainAxisSpacing: 12,
-                childAspectRatio: 0.75,
+                childAspectRatio: 0.68,
               ),
               itemCount: annonces.length,
               itemBuilder: (context, index) {

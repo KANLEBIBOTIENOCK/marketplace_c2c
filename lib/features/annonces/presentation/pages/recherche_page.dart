@@ -29,21 +29,26 @@ class _RecherchePageState extends ConsumerState<RecherchePage> {
   void _appliquerRecherche() {
     final prixMin = double.tryParse(_prixMinController.text.trim());
     final prixMax = double.tryParse(_prixMaxController.text.trim());
-    ref.read(rechercheParamsProvider.notifier).update((state) => state.copyWith(
-          query: _searchController.text.trim(),
-          prixMin: prixMin,
-          prixMax: prixMax,
-          resetPrixMin: _prixMinController.text.isEmpty,
-          resetPrixMax: _prixMaxController.text.isEmpty,
-        ));
+    ref
+        .read(rechercheParamsProvider.notifier)
+        .update(
+          (state) => state.copyWith(
+            query: _searchController.text.trim(),
+            prixMin: prixMin,
+            prixMax: prixMax,
+            resetPrixMin: _prixMinController.text.isEmpty,
+            resetPrixMax: _prixMaxController.text.isEmpty,
+          ),
+        );
   }
 
   void _resetFiltres() {
     _searchController.clear();
     _prixMinController.clear();
     _prixMaxController.clear();
-    ref.read(rechercheParamsProvider.notifier).state =
-        const RechercheParams();
+    ref
+        .read(rechercheParamsProvider.notifier)
+        .update((_) => const RechercheParams());
   }
 
   @override
@@ -77,9 +82,12 @@ class _RecherchePageState extends ConsumerState<RecherchePage> {
                       hintText: 'Rechercher une annonce...',
                       prefixIcon: const Icon(Icons.search),
                       border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12)),
-                      contentPadding:
-                          const EdgeInsets.symmetric(vertical: 0, horizontal: 12),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      contentPadding: const EdgeInsets.symmetric(
+                        vertical: 0,
+                        horizontal: 12,
+                      ),
                     ),
                     onSubmitted: (_) => _appliquerRecherche(),
                   ),
@@ -92,8 +100,7 @@ class _RecherchePageState extends ConsumerState<RecherchePage> {
                         ? Theme.of(context).colorScheme.primary
                         : null,
                   ),
-                  onPressed: () =>
-                      setState(() => _showFilters = !_showFilters),
+                  onPressed: () => setState(() => _showFilters = !_showFilters),
                   tooltip: 'Filtres',
                 ),
                 IconButton(
@@ -118,8 +125,10 @@ class _RecherchePageState extends ConsumerState<RecherchePage> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   // Catégorie
-                  const Text('Catégorie',
-                      style: TextStyle(fontWeight: FontWeight.bold)),
+                  const Text(
+                    'Catégorie',
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
                   const SizedBox(height: 8),
                   categoriesAsync.when(
                     loading: () => const LinearProgressIndicator(),
@@ -135,22 +144,25 @@ class _RecherchePageState extends ConsumerState<RecherchePage> {
                               .read(rechercheParamsProvider.notifier)
                               .update((s) => s.copyWith(resetCategorie: true)),
                         ),
-                        ...categories.map((cat) => FilterChip(
-                              label: Text(cat.nom),
-                              selected: params.categorieId == cat.id,
-                              onSelected: (_) => ref
-                                  .read(rechercheParamsProvider.notifier)
-                                  .update((s) => s.copyWith(
-                                      categorieId: cat.id)),
-                            )),
+                        ...categories.map(
+                          (cat) => FilterChip(
+                            label: Text(cat.nom),
+                            selected: params.categorieId == cat.id,
+                            onSelected: (_) => ref
+                                .read(rechercheParamsProvider.notifier)
+                                .update((s) => s.copyWith(categorieId: cat.id)),
+                          ),
+                        ),
                       ],
                     ),
                   ),
                   const SizedBox(height: 12),
 
                   // Prix
-                  const Text('Prix (FCFA)',
-                      style: TextStyle(fontWeight: FontWeight.bold)),
+                  const Text(
+                    'Prix (FCFA)',
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
                   const SizedBox(height: 8),
                   Row(
                     children: [
@@ -161,9 +173,12 @@ class _RecherchePageState extends ConsumerState<RecherchePage> {
                           decoration: InputDecoration(
                             hintText: 'Min',
                             border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(8)),
+                              borderRadius: BorderRadius.circular(8),
+                            ),
                             contentPadding: const EdgeInsets.symmetric(
-                                vertical: 8, horizontal: 10),
+                              vertical: 8,
+                              horizontal: 10,
+                            ),
                           ),
                         ),
                       ),
@@ -178,9 +193,12 @@ class _RecherchePageState extends ConsumerState<RecherchePage> {
                           decoration: InputDecoration(
                             hintText: 'Max',
                             border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(8)),
+                              borderRadius: BorderRadius.circular(8),
+                            ),
                             contentPadding: const EdgeInsets.symmetric(
-                                vertical: 8, horizontal: 10),
+                              vertical: 8,
+                              horizontal: 10,
+                            ),
                           ),
                         ),
                       ),
@@ -189,8 +207,10 @@ class _RecherchePageState extends ConsumerState<RecherchePage> {
                   const SizedBox(height: 12),
 
                   // Tri
-                  const Text('Trier par',
-                      style: TextStyle(fontWeight: FontWeight.bold)),
+                  const Text(
+                    'Trier par',
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
                   const SizedBox(height: 8),
                   Wrap(
                     spacing: 6,
@@ -235,8 +255,7 @@ class _RecherchePageState extends ConsumerState<RecherchePage> {
           // Résultats
           Expanded(
             child: resultats.when(
-              loading: () =>
-                  const Center(child: CircularProgressIndicator()),
+              loading: () => const Center(child: CircularProgressIndicator()),
               error: (e, _) => Center(child: Text(e.toString())),
               data: (annonces) {
                 if (annonces.isEmpty) {
@@ -244,8 +263,11 @@ class _RecherchePageState extends ConsumerState<RecherchePage> {
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        const Icon(Icons.search_off,
-                            size: 64, color: Colors.grey),
+                        const Icon(
+                          Icons.search_off,
+                          size: 64,
+                          color: Colors.grey,
+                        ),
                         const SizedBox(height: 16),
                         Text(
                           params.query.isNotEmpty
@@ -267,7 +289,9 @@ class _RecherchePageState extends ConsumerState<RecherchePage> {
                           Text(
                             '${annonces.length} résultat${annonces.length > 1 ? 's' : ''}',
                             style: const TextStyle(
-                                color: Colors.grey, fontSize: 13),
+                              color: Colors.grey,
+                              fontSize: 13,
+                            ),
                           ),
                         ],
                       ),
@@ -278,11 +302,11 @@ class _RecherchePageState extends ConsumerState<RecherchePage> {
                         padding: const EdgeInsets.symmetric(horizontal: 12),
                         gridDelegate:
                             const SliverGridDelegateWithFixedCrossAxisCount(
-                          crossAxisCount: 2,
-                          crossAxisSpacing: 12,
-                          mainAxisSpacing: 12,
-                          childAspectRatio: 0.75,
-                        ),
+                              crossAxisCount: 2,
+                              crossAxisSpacing: 12,
+                              mainAxisSpacing: 12,
+                              childAspectRatio: 0.68,
+                            ),
                         itemCount: annonces.length,
                         itemBuilder: (context, index) {
                           final annonce = annonces[index];
@@ -291,8 +315,8 @@ class _RecherchePageState extends ConsumerState<RecherchePage> {
                             onTap: () => Navigator.push(
                               context,
                               MaterialPageRoute(
-                                builder: (_) => DetailAnnoncePage(
-                                    annonceId: annonce.id),
+                                builder: (_) =>
+                                    DetailAnnoncePage(annonceId: annonce.id),
                               ),
                             ),
                           );

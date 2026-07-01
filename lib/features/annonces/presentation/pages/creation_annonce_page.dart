@@ -5,7 +5,6 @@ import 'package:image_picker/image_picker.dart';
 import '../../../auth/presentation/providers/auth_provider.dart';
 import '../../domain/entities/categorie.dart';
 import '../providers/annonce_provider.dart';
-import '../providers/categorie_provider.dart';
 import '../widgets/categorie_selector.dart';
 
 class CreationAnnoncePage extends ConsumerStatefulWidget {
@@ -55,19 +54,18 @@ class _CreationAnnoncePageState extends ConsumerState<CreationAnnoncePage> {
     final List<String> photoUrls = [];
     for (final image in _images) {
       final bytes = await image.readAsBytes();
-      final fileName =
-          '${DateTime.now().millisecondsSinceEpoch}_${image.name}';
+      final fileName = '${DateTime.now().millisecondsSinceEpoch}_${image.name}';
       try {
-        final url = await ref.read(uploadPhotoUsecaseProvider).call(
-              userId: user.id,
-              filePath: fileName,
-              fileBytes: bytes,
-            );
+        final url = await ref
+            .read(uploadPhotoUsecaseProvider)
+            .call(userId: user.id, filePath: fileName, fileBytes: bytes);
         photoUrls.add(url);
       } catch (_) {}
     }
 
-    await ref.read(creationAnnonceProvider.notifier).publier(
+    await ref
+        .read(creationAnnonceProvider.notifier)
+        .publier(
           titre: _titreController.text.trim(),
           utilisateurId: user.id,
           categorieId: _selectedCategorie?.id,
@@ -118,8 +116,10 @@ class _CreationAnnoncePageState extends ConsumerState<CreationAnnoncePage> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               // Photos
-              const Text('Photos (max 4)',
-                  style: TextStyle(fontWeight: FontWeight.bold)),
+              const Text(
+                'Photos (max 4)',
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
               const SizedBox(height: 8),
               SizedBox(
                 height: 100,
@@ -149,8 +149,11 @@ class _CreationAnnoncePageState extends ConsumerState<CreationAnnoncePage> {
                                 child: const CircleAvatar(
                                   radius: 10,
                                   backgroundColor: Colors.red,
-                                  child: Icon(Icons.close,
-                                      size: 12, color: Colors.white),
+                                  child: Icon(
+                                    Icons.close,
+                                    size: 12,
+                                    color: Colors.white,
+                                  ),
                                 ),
                               ),
                             ),
@@ -171,11 +174,17 @@ class _CreationAnnoncePageState extends ConsumerState<CreationAnnoncePage> {
                           child: const Column(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              Icon(Icons.add_photo_alternate,
-                                  color: Colors.grey),
-                              Text('Ajouter',
-                                  style: TextStyle(
-                                      fontSize: 11, color: Colors.grey)),
+                              Icon(
+                                Icons.add_photo_alternate,
+                                color: Colors.grey,
+                              ),
+                              Text(
+                                'Ajouter',
+                                style: TextStyle(
+                                  fontSize: 11,
+                                  color: Colors.grey,
+                                ),
+                              ),
                             ],
                           ),
                         ),
@@ -198,13 +207,14 @@ class _CreationAnnoncePageState extends ConsumerState<CreationAnnoncePage> {
               const SizedBox(height: 16),
 
               // Catégorie
-              const Text('Catégorie',
-                  style: TextStyle(fontWeight: FontWeight.bold)),
+              const Text(
+                'Catégorie',
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
               const SizedBox(height: 8),
               CategorieSelector(
                 selected: _selectedCategorie,
-                onSelected: (cat) =>
-                    setState(() => _selectedCategorie = cat),
+                onSelected: (cat) => setState(() => _selectedCategorie = cat),
               ),
               const SizedBox(height: 16),
 

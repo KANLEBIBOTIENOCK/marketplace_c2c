@@ -5,11 +5,7 @@ class AnnonceCard extends StatelessWidget {
   final Annonce annonce;
   final VoidCallback onTap;
 
-  const AnnonceCard({
-    super.key,
-    required this.annonce,
-    required this.onTap,
-  });
+  const AnnonceCard({super.key, required this.annonce, required this.onTap});
 
   @override
   Widget build(BuildContext context) {
@@ -18,34 +14,36 @@ class AnnonceCard extends StatelessWidget {
       child: Card(
         elevation: 2,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        clipBehavior: Clip.antiAlias,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
           children: [
-            // Photo
-            ClipRRect(
-              borderRadius:
-                  const BorderRadius.vertical(top: Radius.circular(12)),
+            // Photo flexible — pas de hauteur fixe
+            AspectRatio(
+              aspectRatio: 1.2,
               child: annonce.photos.isNotEmpty
                   ? Image.network(
                       annonce.photos.first,
-                      height: 140,
-                      width: double.infinity,
                       fit: BoxFit.cover,
-                      errorBuilder: (_, __, ___) => _placeholder(),
+                      errorBuilder: (_, _, _) => _placeholder(),
                     )
                   : _placeholder(),
             ),
             Padding(
-              padding: const EdgeInsets.all(10),
+              padding: const EdgeInsets.fromLTRB(8, 8, 8, 10),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
                 children: [
                   Text(
                     annonce.titre,
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                     style: const TextStyle(
-                        fontWeight: FontWeight.bold, fontSize: 14),
+                      fontWeight: FontWeight.bold,
+                      fontSize: 13,
+                    ),
                   ),
                   const SizedBox(height: 4),
                   Text(
@@ -62,15 +60,22 @@ class AnnonceCard extends StatelessWidget {
                     const SizedBox(height: 4),
                     Row(
                       children: [
-                        const Icon(Icons.location_on,
-                            size: 12, color: Colors.grey),
+                        const Icon(
+                          Icons.location_on,
+                          size: 11,
+                          color: Colors.grey,
+                        ),
                         const SizedBox(width: 2),
-                        Text(
-                          annonce.localisation!,
-                          style: const TextStyle(
-                              fontSize: 11, color: Colors.grey),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
+                        Expanded(
+                          child: Text(
+                            annonce.localisation!,
+                            style: const TextStyle(
+                              fontSize: 11,
+                              color: Colors.grey,
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
                         ),
                       ],
                     ),
@@ -86,10 +91,10 @@ class AnnonceCard extends StatelessWidget {
 
   Widget _placeholder() {
     return Container(
-      height: 140,
-      width: double.infinity,
       color: Colors.grey[200],
-      child: const Icon(Icons.image, size: 48, color: Colors.grey),
+      child: const Center(
+        child: Icon(Icons.image, size: 40, color: Colors.grey),
+      ),
     );
   }
 }
